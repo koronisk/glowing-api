@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "2.3.21"
     id("com.gradleup.shadow") version "9.6.0"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.21"
 }
 
 group = "ru.let.glowingapi"
@@ -17,8 +18,8 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    compileOnly("io.papermc.paper:paper-api:26.2.build.+")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
+    paperweight.paperDevBundle("26.2.build.+")
 }
 
 kotlin {
