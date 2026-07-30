@@ -10,7 +10,11 @@ import org.bukkit.entity.Player
 import ru.let.glowingapi.Glowable
 
 class PlayerGlowable(val player: Player) : Glowable {
-    override fun getIds(): Set<Int> {
+    override fun getId(): String {
+        return player.name
+    }
+    
+    override fun getEntityIds(): Set<Int> {
         return setOf(player.entityId)
     }
 
