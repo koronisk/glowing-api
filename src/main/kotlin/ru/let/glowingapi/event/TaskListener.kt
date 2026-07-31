@@ -1,21 +1,23 @@
 package ru.let.glowingapi.event
 
+import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import ru.let.glowingapi.GlowingApiPlugin
 import ru.let.glowingapi.GlowingTask
+import ru.let.glowingapi.glowable.EntityGlowable
 import ru.let.glowingapi.glowable.PlayerGlowable
 
 class TaskListener(val task: GlowingTask) {
-    fun onPlayerJoin(event: PlayerJoinEvent) {
-        if (task.observers.any { it.player == event.player }) {
-            task.removeObserver(event.player.name)
-                .addObserver(event.player)
+    fun onPlayerJoin(e: PlayerJoinEvent) {
+        if (task.observers.any { it.player == e.player }) {
+            task.removeObserver(e.player.name)
+                .addObserver(e.player)
         }
 
-        if (task.targets.any { it.getId() == event.player.name }) {
-            task.removeTarget(event.player.name)
-                .addTarget(PlayerGlowable(event.player))
+        if (task.targets.any { it.getId() == e.player.name }) {
+            task.removeTarget(e.player.name)
+                .addTarget(PlayerGlowable(e.player))
         }
 
         GlowingApiPlugin.plugin.server.scheduler.runTaskLater(GlowingApiPlugin.plugin, Runnable {
@@ -23,8 +25,15 @@ class TaskListener(val task: GlowingTask) {
         }, 5L)
     }
 
-    fun onPlayerQuit(event: PlayerQuitEvent) {
-        if (task.observers.any { it.player == event.player })
-            task.injector.uninject(event.player)
+    fun onPlayerQuit(e: PlayerQuitEvent) {
+        if (task.observers.any { it.player == e.player })
+            task.injector.uninject(e.player)
+    }
+    
+    fun onEntityDeath(e: EntityDeathEvent) {
+        if (task.targets.any { it.getId() == e.entity.entityId.toString() }) {
+            task.removeTarget(e.entity.entityId)
+                .addTarget(EntityGlowable(e.entity))
+        }
     }
 }

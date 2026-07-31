@@ -2,6 +2,7 @@ package ru.let.glowingapi.event
 
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import ru.let.glowingapi.GlowingTask
@@ -18,16 +19,23 @@ class GlobalListener : Listener {
     }
     
     @EventHandler
-    fun onPlayerJoin(event: PlayerJoinEvent) {
+    fun onPlayerJoin(e: PlayerJoinEvent) {
         subscribedTasks.forEach { task ->
-            task.listener.onPlayerJoin(event)
+            task.listener.onPlayerJoin(e)
         }
     }
     
     @EventHandler
-    fun onPlayerQuit(event: PlayerQuitEvent) {
+    fun onPlayerQuit(e: PlayerQuitEvent) {
         subscribedTasks.forEach { task ->
-            task.listener.onPlayerQuit(event)
+            task.listener.onPlayerQuit(e)
+        }
+    }
+
+    @EventHandler
+    fun onEntityDeath(e: EntityDeathEvent) {
+        subscribedTasks.forEach { task ->
+            task.listener.onEntityDeath(e)
         }
     }
 }

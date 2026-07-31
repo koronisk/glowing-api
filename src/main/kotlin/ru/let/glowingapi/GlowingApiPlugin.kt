@@ -1,11 +1,12 @@
 package ru.let.glowingapi
 
-import org.bukkit.Bukkit
+import org.bukkit.entity.LivingEntity
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerChatEvent
 import org.bukkit.plugin.java.JavaPlugin
 import ru.let.glowingapi.event.GlobalListener
+import ru.let.glowingapi.glowable.EntityGlowable
 import ru.let.glowingapi.glowable.PlayerGlowable
 
 class GlowingApiPlugin : JavaPlugin(), Listener {
@@ -23,11 +24,15 @@ class GlowingApiPlugin : JavaPlugin(), Listener {
     }
 
     @EventHandler
-    fun onChat(event: PlayerChatEvent) {
+    fun onChat(e: PlayerChatEvent) {
         val task = GlowingTask().with { task ->
             server.onlinePlayers.forEach { player ->
                 task.addTarget(PlayerGlowable(player))
                 task.addObserver(player)
+            }
+
+            e.player.world.entities.filterIsInstance<LivingEntity>().forEach { entity ->
+                task.addTarget(EntityGlowable(entity))
             }
         }
 
