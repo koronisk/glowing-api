@@ -16,11 +16,7 @@ class GlowingTask {
     private lateinit var bukkitTask: BukkitTask
 
     val listener: TaskListener = TaskListener(this)
-
-    fun with(action: (GlowingTask) -> Unit): GlowingTask = apply {
-        action(this)
-    }
-
+    
     fun addObserver(observer: Player): GlowingTask = apply {
         observers.add(observer)
     }

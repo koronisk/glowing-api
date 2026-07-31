@@ -25,15 +25,14 @@ class GlowingApiPlugin : JavaPlugin(), Listener {
 
     @EventHandler
     fun onChat(e: PlayerChatEvent) {
-        val task = GlowingTask().with { task ->
-            server.onlinePlayers.forEach { player ->
-                task.addTarget(PlayerGlowable(player))
-                task.addObserver(player)
-            }
+        val players = server.onlinePlayers
+        val entities = e.player.world.entities.filterIsInstance<LivingEntity>()
+        
+        val task = GlowingTaskBuilder.setup {
+            addObservers(players)
 
-            e.player.world.entities.filterIsInstance<LivingEntity>().forEach { entity ->
-                task.addTarget(EntityGlowable(entity))
-            }
+            addPlayerTargets(players)
+            addEntityTargets(entities)
         }
 
         task.start()
