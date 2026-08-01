@@ -9,31 +9,41 @@ import ru.let.glowingapi.glowable.EntityGlowable
 import ru.let.glowingapi.glowable.PlayerGlowable
 
 class TaskListener(val task: GlowingTask) {
+
     fun onPlayerJoin(e: PlayerJoinEvent) {
-        if (task.observers.any { it.player == e.player }) {
-            task.removeObserver(e.player.name)
-                .addObserver(e.player)
+        val player = e.player
+
+        if (task.observers.any { it.name == player.name }) {
+            task.observers.removeIf { it.name == player.name }
+            task.addObserver(player)
         }
 
-        if (task.targets.any { it.getId() == e.player.name }) {
-            task.removeTarget(e.player.name)
-                .addTarget(PlayerGlowable(e.player))
+        if (task.targets.any { it.getId() == player.name }) {
+            task.removeTarget(player.name)
+                .addTarget(PlayerGlowable(player, task.team))
         }
 
         GlowingApiPlugin.plugin.server.scheduler.runTaskLater(GlowingApiPlugin.plugin, Runnable {
-            task.resync()
+            if (player.isOnline) {
+                task.resync()
+            }
         }, 5L)
     }
 
     fun onPlayerQuit(e: PlayerQuitEvent) {
-        if (task.observers.any { it.player == e.player })
-            task.injector.uninject(e.player)
+        val player = e.player
+
+        if (task.observers.any { it.name == player.name }) {
+            task.injector.uninject(player)
+        }
     }
-    
+
     fun onEntityDeath(e: EntityDeathEvent) {
-        if (task.targets.any { it.getId() == e.entity.entityId.toString() }) {
-            task.removeTarget(e.entity.entityId)
-                .addTarget(EntityGlowable(e.entity))
+        val entity = e.entity
+        
+        if (task.targets.any { it.getId() == entity.entityId.toString() }) {
+            task.removeTarget(entity.entityId)
+                .addTarget(EntityGlowable(entity, task.team))
         }
     }
 }

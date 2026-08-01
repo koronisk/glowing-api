@@ -1,5 +1,6 @@
 package ru.let.glowingapi
 
+import net.minecraft.world.scores.TeamColor
 import org.bukkit.entity.LivingEntity
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -29,10 +30,11 @@ class GlowingApiPlugin : JavaPlugin(), Listener {
         val entities = e.player.world.entities.filterIsInstance<LivingEntity>()
         
         val task = GlowingTaskBuilder.setup {
-            addObservers(players)
+            color = TeamColor.GREEN
+            observers.addAll(players)
 
-            addPlayerTargets(players)
-            addEntityTargets(entities)
+            playerTargets.addAll(players)
+            entityTargets.addAll(entities)
         }
 
         task.start()

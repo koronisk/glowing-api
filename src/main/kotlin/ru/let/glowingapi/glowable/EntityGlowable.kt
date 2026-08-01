@@ -2,14 +2,16 @@ package ru.let.glowingapi.glowable
 
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
+import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
+import net.minecraft.world.scores.PlayerTeam
 import org.bukkit.craftbukkit.entity.CraftLivingEntity
 import org.bukkit.entity.LivingEntity
 import ru.let.glowingapi.Glowable
 
-open class EntityGlowable(val entity: LivingEntity) : Glowable {
+open class EntityGlowable(val entity: LivingEntity, val team: PlayerTeam) : Glowable {
     override fun getId(): String {
         return entity.entityId.toString()
     }
@@ -29,7 +31,15 @@ open class EntityGlowable(val entity: LivingEntity) : Glowable {
     }
 
     override fun getTempPackets(): List<Packet<*>> {
-        return getStartPackets()
+        val packets = mutableListOf<Packet<*>>()
+        
+        packets.addAll(getStartPackets())
+        
+        team.players.add(entity.scoreboardEntryName)
+        val createTeamPacket = ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true)
+        packets.add(createTeamPacket)
+        
+        return packets
     }
 
     override fun getEndPackets(): List<Packet<*>> {

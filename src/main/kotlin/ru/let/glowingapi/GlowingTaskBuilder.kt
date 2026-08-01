@@ -1,45 +1,46 @@
 package ru.let.glowingapi
 
+import net.minecraft.world.scores.PlayerTeam
+import net.minecraft.world.scores.Scoreboard
+import net.minecraft.world.scores.TeamColor
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import ru.let.glowingapi.glowable.EntityGlowable
 import ru.let.glowingapi.glowable.PlayerGlowable
+import java.util.Optional
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-class GlowingTaskBuilder private constructor(val task: GlowingTask) {
+class GlowingTaskBuilder private constructor() {
     companion object {
         fun setup(action: (GlowingTaskBuilder).() -> Unit): GlowingTask {
-            val task = GlowingTask()
-            val builder = GlowingTaskBuilder(task)
+            val builder = GlowingTaskBuilder()
 
             action(builder)
 
-            return task
+            return builder.getTask()
         }
     }
 
-    fun addObserver(player: Player) {
-        task.addObserver(player)
-    }
+    var color: TeamColor = TeamColor.WHITE
+    val observers: MutableSet<Player> = mutableSetOf()
+    val playerTargets: MutableSet<Player> = mutableSetOf()
+    val entityTargets: MutableSet<LivingEntity> = mutableSetOf()
 
-    fun addObservers(players: Collection<Player>) {
-        players.forEach { task.addObserver(it) }
-    }
-    
+    @OptIn(ExperimentalUuidApi::class)
+    fun getTask(): GlowingTask {
+        val task = GlowingTask()
 
-    fun addPlayerTarget(player: Player) {
-        task.addTarget(PlayerGlowable(player))
-    }
+        val scoreboard = Scoreboard()
+        val teamName = Uuid.random().toString()
+        val team = PlayerTeam(scoreboard, teamName)
+        team.color = Optional.of(color)
+        task.team = team
 
-    fun addPlayerTargets(players: Collection<Player>) {
-        players.forEach { task.addTarget(PlayerGlowable(it)) }
-    }
+        observers.forEach { task.addObserver(it) }
+        playerTargets.forEach { task.addTarget(PlayerGlowable(it, task.team)) }
+        entityTargets.forEach { task.addTarget(EntityGlowable(it, task.team)) }
 
-
-    fun addEntityTarget(entity: LivingEntity) {
-        task.addTarget(EntityGlowable(entity))
-    }
-
-    fun addEntityTargets(entities: Collection<LivingEntity>) {
-        entities.forEach { task.addTarget(EntityGlowable(it)) }
+        return task
     }
 }
