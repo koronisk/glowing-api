@@ -23,7 +23,7 @@ class TaskListener(val task: GlowingTask) {
                 .addTarget(PlayerGlowable(player, task.team))
         }
 
-        GlowingApiPlugin.plugin.server.scheduler.runTaskLater(GlowingApiPlugin.plugin, Runnable {
+        task.plugin.server.scheduler.runTaskLater(task.plugin, Runnable {
             if (player.isOnline) {
                 task.resync()
             }
@@ -34,7 +34,7 @@ class TaskListener(val task: GlowingTask) {
         val player = e.player
 
         if (task.observers.any { it.name == player.name }) {
-            task.injector.uninject(player)
+            task.plugin.injector.uninject(player)
         }
     }
 

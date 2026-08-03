@@ -7,19 +7,13 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerChatEvent
 import org.bukkit.plugin.java.JavaPlugin
 import ru.let.glowingapi.event.GlobalListener
-import ru.let.glowingapi.glowable.EntityGlowable
-import ru.let.glowingapi.glowable.PlayerGlowable
+import ru.let.glowingapi.net.NettyInjector
 
 class GlowingApiPlugin : JavaPlugin(), Listener {
-    companion object {
-        lateinit var plugin: JavaPlugin
-        lateinit var listener: GlobalListener
-    }
+    val injector: NettyInjector = NettyInjector()
+    val listener: GlobalListener = GlobalListener()
 
     override fun onEnable() {
-        plugin = this
-        listener = GlobalListener()
-
         server.pluginManager.registerEvents(listener, this)
         server.pluginManager.registerEvents(this, this)
     }
@@ -28,15 +22,20 @@ class GlowingApiPlugin : JavaPlugin(), Listener {
     fun onChat(e: PlayerChatEvent) {
         val players = server.onlinePlayers
         val entities = e.player.world.entities.filterIsInstance<LivingEntity>()
-        
-        val task = GlowingTaskBuilder.setup {
+
+        GlowingTaskBuilder.setup {
             color = TeamColor.GREEN
-            observers.addAll(players)
+            observers.add(e.player)
 
             playerTargets.addAll(players)
             entityTargets.addAll(entities)
-        }
 
-        task.start()
+            val task = initTask(this)
+            task.start()
+        }
+    }
+
+    fun initTask(builder: GlowingTaskBuilder): GlowingTask {
+        return builder.getTask(this)
     }
 } 

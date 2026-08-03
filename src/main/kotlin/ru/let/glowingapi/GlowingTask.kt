@@ -3,14 +3,13 @@ package ru.let.glowingapi
 import net.minecraft.world.scores.PlayerTeam
 import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.entity.Player
+import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitTask
 import ru.let.glowingapi.event.TaskListener
 import ru.let.glowingapi.glowable.PlayerGlowable
 import ru.let.glowingapi.net.NettyInjector
 
-class GlowingTask {
-    val injector = NettyInjector()
-
+class GlowingTask(val plugin: GlowingApiPlugin) {
     val observers: MutableSet<Player> = mutableSetOf()
     val targets: MutableSet<Glowable> = mutableSetOf()
 
@@ -43,7 +42,7 @@ class GlowingTask {
             removed.forEach { target ->
                 target.getEntityIds().forEach { entityId ->
                     val targetName = (target as? PlayerGlowable)?.getId()
-                    injector.unregisterTarget(observer, entityId, targetName)
+                    plugin.injector.unregisterTarget(observer, entityId, targetName)
                 }
             }
         }
@@ -56,19 +55,19 @@ class GlowingTask {
         observers.forEach { observer ->
             removed.forEach { target ->
                 val targetName = (target as? PlayerGlowable)?.getId()
-                injector.unregisterTarget(observer, entityId, targetName)
+                plugin.injector.unregisterTarget(observer, entityId, targetName)
             }
         }
     }
 
     fun start() {
-        GlowingApiPlugin.listener.subscribe(this)
+        plugin.listener.subscribe(this)
 
         observers.forEach { observer ->
             resyncObserver(observer)
         }
 
-        bukkitTask = GlowingApiPlugin.plugin.server.scheduler.runTaskTimer(GlowingApiPlugin.plugin, Runnable {
+        bukkitTask = plugin.server.scheduler.runTaskTimer(plugin, Runnable {
             observers.forEach { observer ->
                 targets.forEach { target ->
                     val observerConnection = (observer as CraftPlayer).handle.connection
@@ -77,11 +76,11 @@ class GlowingTask {
                     }
                 }
             }
-        }, 0L, 20L)
+        }, 0L, 100L)
     }
 
     fun end() {
-        GlowingApiPlugin.listener.unsubscribe(this)
+        plugin.listener.unsubscribe(this)
 
         bukkitTask.cancel()
 
@@ -103,7 +102,7 @@ class GlowingTask {
             val targetName = (target as? PlayerGlowable)?.getId()
 
             target.getEntityIds().forEach { id ->
-                injector.registerTarget(observer, id, targetName, team.name)
+                plugin.injector.registerTarget(observer, id, targetName, team.name)
             }
 
             val observerConnection = (observer as CraftPlayer).handle.connection
@@ -114,7 +113,7 @@ class GlowingTask {
     }
 
     private fun desyncObserver(observer: Player) {
-        injector.uninject(observer)
+        plugin.injector.uninject(observer)
 
         if (observer.isOnline) {
             targets.forEach { target ->

@@ -13,12 +13,12 @@ import kotlin.uuid.Uuid
 
 class GlowingTaskBuilder private constructor() {
     companion object {
-        fun setup(action: (GlowingTaskBuilder).() -> Unit): GlowingTask {
+        fun setup(action: (GlowingTaskBuilder).() -> Unit): GlowingTaskBuilder {
             val builder = GlowingTaskBuilder()
 
             action(builder)
 
-            return builder.getTask()
+            return builder
         }
     }
 
@@ -28,8 +28,8 @@ class GlowingTaskBuilder private constructor() {
     val entityTargets: MutableSet<LivingEntity> = mutableSetOf()
 
     @OptIn(ExperimentalUuidApi::class)
-    fun getTask(): GlowingTask {
-        val task = GlowingTask()
+    fun getTask(plugin: GlowingApiPlugin): GlowingTask {
+        val task = GlowingTask(plugin)
 
         val scoreboard = Scoreboard()
         val teamName = Uuid.random().toString()
@@ -39,7 +39,7 @@ class GlowingTaskBuilder private constructor() {
 
         observers.forEach { task.addObserver(it) }
         playerTargets.forEach { task.addTarget(PlayerGlowable(it, task.team)) }
-        entityTargets.forEach { task.addTarget(EntityGlowable(it, task.team)) }
+        entityTargets.forEach { if (it !is Player) task.addTarget(EntityGlowable(it, task.team)) }
 
         return task
     }
