@@ -13,12 +13,12 @@ class TaskListener(val task: GlowingTask) {
     fun onPlayerJoin(e: PlayerJoinEvent) {
         val player = e.player
 
-        if (task.observers.any { it.name == player.name }) {
-            task.observers.removeIf { it.name == player.name }
+        if (task.getObservers().any { it.name == player.name }) {
+            task.removeObserver(player.name)
             task.addObserver(player)
         }
 
-        if (task.targets.any { it.getId() == player.name }) {
+        if (task.getTargets().any { it.getId() == player.name }) {
             task.removeTarget(player.name)
                 .addTarget(PlayerGlowable(player, task.team))
         }
@@ -31,19 +31,10 @@ class TaskListener(val task: GlowingTask) {
     }
 
     fun onPlayerQuit(e: PlayerQuitEvent) {
-        val player = e.player
-
-        if (task.observers.any { it.name == player.name }) {
-            task.plugin.injector.uninject(player)
-        }
+        task.desyncObserver(e.player)
     }
 
     fun onEntityDeath(e: EntityDeathEvent) {
-        val entity = e.entity
-        
-        if (task.targets.any { it.getId() == entity.entityId.toString() }) {
-            task.removeTarget(entity.entityId)
-                .addTarget(EntityGlowable(entity, task.team))
-        }
+        task.removeTarget(e.entity.entityId)
     }
 }

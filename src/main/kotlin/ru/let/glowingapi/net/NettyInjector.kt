@@ -11,6 +11,7 @@ import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
 import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.entity.Player
+import ru.let.glowingapi.exts.getNmsConnection
 import java.lang.reflect.Field
 import java.util.concurrent.ConcurrentHashMap
 
@@ -126,6 +127,6 @@ class NettyInjector {
     }
 
     private fun getChannel(player: Player): Channel {
-        return (player as CraftPlayer).handle.connection.connection.channel
+        return player.getNmsConnection().connection.channel
     }
 }

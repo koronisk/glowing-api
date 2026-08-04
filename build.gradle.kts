@@ -32,6 +32,6 @@ tasks.test {
 
 tasks.shadowJar {
     manifest {
-        attributes["Main-Class"] = "ru.let.GlowingApiPlugin"
+        attributes["Main-Class"] = "ru.let.glowingapi.GlowingApiPlugin"
     }
 }
