@@ -23,19 +23,30 @@ class GlowingApiPlugin : JavaPlugin(), Listener {
         val players = server.onlinePlayers
         val entities = e.player.world.entities.filterIsInstance<LivingEntity>()
 
-        GlowingTaskBuilder.setup {
-            color = TeamColor.GREEN
-            observers.add(e.player)
+        val multiTask = GlowingMultiTask(this).setup {
+            addTask {
+                color = TeamColor.GREEN
+                observers.add(e.player)
 
-            playerTargets.addAll(players)
-            entityTargets.addAll(entities)
+                playerTargets.addAll(players)
+            }
 
-            val task = initTask(this)
-            task.start()
+            addTask {
+                color = TeamColor.YELLOW
+                observers.add(e.player)
+
+                entityTargets.addAll(entities)
+            }
         }
+
+        multiTask.start()
     }
 
-    fun initTask(builder: GlowingTaskBuilder): GlowingTask {
+    fun initTask(action: (GlowingTaskBuilder).() -> Unit): GlowingTask {
+        val builder = GlowingTaskBuilder.setup {
+            action(this)
+        }
+
         return builder.getTask(this)
     }
 } 
