@@ -6,7 +6,7 @@ API для простого и удобного управления эффек�
 > Ожидаемая версия сервера: 26.2+
  
 > [!IMPORTANT]  
-> Для работы необходим вспомогательный плагин [text](https://github.com/koronisk/kotlin-stdlib-bukkit)
+> Для работы необходим вспомогательный плагин [kotlin-stdlib-bukkit](https://github.com/koronisk/kotlin-stdlib-bukkit)
 
 ## Возможности
 - Беспрерывное свечение сущностей и игроков
