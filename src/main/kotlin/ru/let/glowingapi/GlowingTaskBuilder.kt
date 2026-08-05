@@ -3,6 +3,7 @@ package ru.let.glowingapi
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Scoreboard
 import net.minecraft.world.scores.TeamColor
+import org.bukkit.Color
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import ru.let.glowingapi.glowable.EntityGlowable
@@ -22,7 +23,7 @@ class GlowingTaskBuilder private constructor() {
         }
     }
 
-    var color: TeamColor = TeamColor.WHITE
+    var color: GlowingColor = GlowingColor.WHITE
     val observers: MutableSet<Player> = mutableSetOf()
     val playerTargets: MutableSet<Player> = mutableSetOf()
     val entityTargets: MutableSet<LivingEntity> = mutableSetOf()
@@ -34,7 +35,7 @@ class GlowingTaskBuilder private constructor() {
         val scoreboard = Scoreboard()
         val teamName = Uuid.random().toString()
         val team = PlayerTeam(scoreboard, teamName)
-        team.color = Optional.of(color)
+        team.color = Optional.of(color.value)
         task.team = team
 
         observers.forEach { task.addObserver(it) }

@@ -2,3 +2,4 @@ name: GlowingApi
 version: 1.0.0
 main: ru.let.glowingapi.GlowingApiPlugin
 api-version: '26.2'
+depend: [KotlinStdlib]
